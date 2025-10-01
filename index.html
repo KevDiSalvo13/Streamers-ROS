@@ -4,13 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Livestream Rundown Scheduler</title>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-    <script crossorigin src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body { margin: 0; padding: 0; }
-    </style>
 </head>
 <body>
     <div id="root"></div>
@@ -18,33 +15,32 @@
     <script type="text/babel">
         const { useState } = React;
 
-        // Lucide React icons as inline SVG components
         const Plus = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M5 12h14"/><path d="M12 5v14"/>
             </svg>
         );
 
         const Trash2 = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/>
             </svg>
         );
 
         const Clock = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
             </svg>
         );
 
         const BarChart3 = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M3 3v18h18"/><path d="M18 17V9"/><path d="M13 17V5"/><path d="M8 17v-3"/>
             </svg>
         );
 
         const Download = () => (
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/>
             </svg>
         );
@@ -60,15 +56,14 @@
                 assetStatus: 'existing',
             });
 
-            // ⭐ EDIT THIS ARRAY TO CUSTOMIZE YOUR ELEMENT TYPES ⭐
             const elementTypes = [
-                'Full Episode',
-                'Interstitial',
+                'Video Segment',
+                'Commercial',
+                'Bumper',
                 'Promo',
-                'Shorts',
-                'Packaging Element',
-                'Clip Compilation'
-                'Cutdown',
+                'Interstitial',
+                'Show Open',
+                'Show Close',
                 'Graphics Package',
                 'Other'
             ];
@@ -128,7 +123,7 @@
                 const h = Math.floor(seconds / 3600);
                 const m = Math.floor((seconds % 3600) / 60);
                 const s = seconds % 60;
-                return `${h}h ${m}m ${s}s`;
+                return h + 'h ' + m + 'm ' + s + 's';
             };
 
             const calculateStats = () => {
@@ -153,246 +148,273 @@
                 let csv = 'Order,Start Time,Duration,Type,Title,Visual/Audio Cue,Asset Status\n';
                 
                 elements.forEach(el => {
-                    csv += `${el.order},"${el.startTime}","${el.duration}","${el.type}","${el.title}","${el.cue}","${el.assetStatus}"\n`;
+                    csv += el.order + ',"' + el.startTime + '","' + el.duration + '","' + el.type + '","' + el.title + '","' + el.cue + '","' + el.assetStatus + '"\n';
                 });
 
                 csv += '\n\nSUMMARY REPORT\n';
-                csv += `Total Elements,${stats.totalElements}\n`;
-                csv += `Total Duration,${formatDuration(stats.totalDuration)}\n`;
+                csv += 'Total Elements,' + stats.totalElements + '\n';
+                csv += 'Total Duration,' + formatDuration(stats.totalDuration) + '\n';
                 csv += '\nBreakdown by Type\n';
                 Object.entries(stats.typeBreakdown).forEach(([type, count]) => {
-                    csv += `${type},${count}\n`;
+                    csv += type + ',' + count + '\n';
                 });
                 csv += '\nAsset Status\n';
-                csv += `Existing,${stats.assetBreakdown.existing}\n`;
-                csv += `New,${stats.assetBreakdown.new}\n`;
+                csv += 'Existing,' + stats.assetBreakdown.existing + '\n';
+                csv += 'New,' + stats.assetBreakdown.new + '\n';
 
                 const blob = new Blob([csv], { type: 'text/csv' });
                 const url = URL.createObjectURL(blob);
                 const a = document.createElement('a');
                 a.href = url;
-                a.download = `rundown_${new Date().toISOString().split('T')[0]}.csv`;
+                a.download = 'rundown_' + new Date().toISOString().split('T')[0] + '.csv';
                 a.click();
                 URL.revokeObjectURL(url);
             };
 
             const stats = calculateStats();
 
-            return React.createElement('div', { className: "min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6" },
-                React.createElement('div', { className: "max-w-7xl mx-auto" },
-                    React.createElement('div', { className: "bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 mb-6" },
-                        React.createElement('h1', { className: "text-4xl font-bold text-white mb-2 flex items-center gap-3" },
-                            React.createElement(Clock),
-                            "Livestream Rundown Scheduler"
-                        ),
-                        React.createElement('p', { className: "text-purple-200" }, "Plan and organize your looping livestream content")
-                    ),
-                    React.createElement('div', { className: "grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6" },
-                        React.createElement('div', { className: "lg:col-span-2 bg-white/10 backdrop-blur-lg rounded-xl p-6" },
-                            React.createElement('h2', { className: "text-2xl font-bold text-white mb-4" }, "Add Element"),
-                            React.createElement('div', { className: "space-y-4" },
-                                React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-4" },
-                                    React.createElement('div', null,
-                                        React.createElement('label', { className: "block text-sm font-medium text-purple-200 mb-2" }, "Start Time (HH:MM:SS) *"),
-                                        React.createElement('input', {
-                                            type: "text",
-                                            placeholder: "00:30:00",
-                                            value: formData.startTime,
-                                            onChange: (e) => setFormData({...formData, startTime: e.target.value}),
-                                            className: "w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        })
-                                    ),
-                                    React.createElement('div', null,
-                                        React.createElement('label', { className: "block text-sm font-medium text-purple-200 mb-2" }, "Duration (HH:MM:SS) *"),
-                                        React.createElement('input', {
-                                            type: "text",
-                                            placeholder: "00:05:30",
-                                            value: formData.duration,
-                                            onChange: (e) => setFormData({...formData, duration: e.target.value}),
-                                            className: "w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        })
-                                    )
-                                ),
-                                React.createElement('div', { className: "grid grid-cols-1 md:grid-cols-2 gap-4" },
-                                    React.createElement('div', null,
-                                        React.createElement('label', { className: "block text-sm font-medium text-purple-200 mb-2" }, "Element Type *"),
-                                        React.createElement('select', {
-                                            value: formData.type,
-                                            onChange: (e) => setFormData({...formData, type: e.target.value}),
-                                            className: "w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        },
-                                            React.createElement('option', { value: "" }, "Select type..."),
-                                            elementTypes.map(type => 
-                                                React.createElement('option', { key: type, value: type, className: "bg-slate-800" }, type)
-                                            )
-                                        )
-                                    ),
-                                    React.createElement('div', null,
-                                        React.createElement('label', { className: "block text-sm font-medium text-purple-200 mb-2" }, "Asset Status *"),
-                                        React.createElement('select', {
-                                            value: formData.assetStatus,
-                                            onChange: (e) => setFormData({...formData, assetStatus: e.target.value}),
-                                            className: "w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                        },
-                                            React.createElement('option', { value: "existing", className: "bg-slate-800" }, "Existing in Catalog"),
-                                            React.createElement('option', { value: "new", className: "bg-slate-800" }, "Create Bespoke")
-                                        )
-                                    )
-                                ),
-                                React.createElement('div', null,
-                                    React.createElement('label', { className: "block text-sm font-medium text-purple-200 mb-2" }, "Element Title *"),
-                                    React.createElement('input', {
-                                        type: "text",
-                                        placeholder: "e.g., Opening Montage",
-                                        value: formData.title,
-                                        onChange: (e) => setFormData({...formData, title: e.target.value}),
-                                        className: "w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    })
-                                ),
-                                React.createElement('div', null,
-                                    React.createElement('label', { className: "block text-sm font-medium text-purple-200 mb-2" }, "Visual/Audio Start Cue"),
-                                    React.createElement('input', {
-                                        type: "text",
-                                        placeholder: "e.g., Logo fade in, Music begins",
-                                        value: formData.cue,
-                                        onChange: (e) => setFormData({...formData, cue: e.target.value}),
-                                        className: "w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                                    })
-                                ),
-                                React.createElement('button', {
-                                    onClick: addElement,
-                                    className: "w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition flex items-center justify-center gap-2"
-                                },
-                                    React.createElement(Plus),
-                                    "Add Element"
-                                )
-                            )
-                        ),
-                        React.createElement('div', { className: "bg-white/10 backdrop-blur-lg rounded-xl p-6" },
-                            React.createElement('h2', { className: "text-2xl font-bold text-white mb-4 flex items-center gap-2" },
-                                React.createElement(BarChart3),
-                                "Summary Report"
-                            ),
-                            React.createElement('div', { className: "space-y-4" },
-                                React.createElement('div', { className: "bg-white/5 rounded-lg p-4" },
-                                    React.createElement('div', { className: "text-purple-300 text-sm mb-1" }, "Total Elements"),
-                                    React.createElement('div', { className: "text-3xl font-bold text-white" }, stats.totalElements)
-                                ),
-                                React.createElement('div', { className: "bg-white/5 rounded-lg p-4" },
-                                    React.createElement('div', { className: "text-purple-300 text-sm mb-1" }, "Total Duration"),
-                                    React.createElement('div', { className: "text-2xl font-bold text-white" }, formatDuration(stats.totalDuration))
-                                ),
-                                React.createElement('div', { className: "bg-white/5 rounded-lg p-4" },
-                                    React.createElement('div', { className: "text-purple-300 text-sm mb-2" }, "Asset Status"),
-                                    React.createElement('div', { className: "space-y-1" },
-                                        React.createElement('div', { className: "flex justify-between text-white" },
-                                            React.createElement('span', null, "Existing:"),
-                                            React.createElement('span', { className: "font-semibold" }, stats.assetBreakdown.existing)
-                                        ),
-                                        React.createElement('div', { className: "flex justify-between text-white" },
-                                            React.createElement('span', null, "New:"),
-                                            React.createElement('span', { className: "font-semibold" }, stats.assetBreakdown.new)
-                                        )
-                                    )
-                                ),
-                                React.createElement('div', { className: "bg-white/5 rounded-lg p-4" },
-                                    React.createElement('div', { className: "text-purple-300 text-sm mb-2" }, "By Type"),
-                                    React.createElement('div', { className: "space-y-1 max-h-48 overflow-y-auto" },
-                                        Object.entries(stats.typeBreakdown).map(([type, count]) =>
-                                            React.createElement('div', { key: type, className: "flex justify-between text-white text-sm" },
-                                                React.createElement('span', null, type + ":"),
-                                                React.createElement('span', { className: "font-semibold" }, count)
-                                            )
-                                        )
-                                    )
-                                ),
-                                React.createElement('button', {
-                                    onClick: exportRundown,
-                                    disabled: elements.length === 0,
-                                    className: "w-full bg-green-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
-                                },
-                                    React.createElement(Download),
-                                    "Export CSV"
-                                )
-                            )
-                        )
-                    ),
-                    React.createElement('div', { className: "bg-white/10 backdrop-blur-lg rounded-xl p-6" },
-                        React.createElement('h2', { className: "text-2xl font-bold text-white mb-4" }, "Rundown Timeline"),
-                        elements.length === 0 ?
-                            React.createElement('div', { className: "text-center text-purple-300 py-12" },
-                                "No elements added yet. Create your first element above to get started."
-                            ) :
-                            React.createElement('div', { className: "overflow-x-auto" },
-                                React.createElement('table', { className: "w-full" },
-                                    React.createElement('thead', null,
-                                        React.createElement('tr', { className: "border-b border-purple-300/30" },
-                                            React.createElement('th', { className: "text-left text-purple-200 font-semibold py-3 px-2" }, "Order"),
-                                            React.createElement('th', { className: "text-left text-purple-200 font-semibold py-3 px-2" }, "Start Time"),
-                                            React.createElement('th', { className: "text-left text-purple-200 font-semibold py-3 px-2" }, "Duration"),
-                                            React.createElement('th', { className: "text-left text-purple-200 font-semibold py-3 px-2" }, "Type"),
-                                            React.createElement('th', { className: "text-left text-purple-200 font-semibold py-3 px-2" }, "Title"),
-                                            React.createElement('th', { className: "text-left text-purple-200 font-semibold py-3 px-2" }, "Cue"),
-                                            React.createElement('th', { className: "text-left text-purple-200 font-semibold py-3 px-2" }, "Asset"),
-                                            React.createElement('th', { className: "text-left text-purple-200 font-semibold py-3 px-2" }, "Actions")
-                                        )
-                                    ),
-                                    React.createElement('tbody', null,
-                                        elements.map((element, idx) =>
-                                            React.createElement('tr', { key: element.id, className: "border-b border-purple-300/10 hover:bg-white/5" },
-                                                React.createElement('td', { className: "py-3 px-2 text-white font-semibold" }, element.order),
-                                                React.createElement('td', { className: "py-3 px-2 text-white" }, element.startTime),
-                                                React.createElement('td', { className: "py-3 px-2 text-white" }, element.duration),
-                                                React.createElement('td', { className: "py-3 px-2" },
-                                                    React.createElement('span', { className: "bg-purple-500/30 text-purple-100 px-2 py-1 rounded text-sm" }, element.type)
-                                                ),
-                                                React.createElement('td', { className: "py-3 px-2 text-white font-medium" }, element.title),
-                                                React.createElement('td', { className: "py-3 px-2 text-purple-200 text-sm" }, element.cue || '—'),
-                                                React.createElement('td', { className: "py-3 px-2" },
-                                                    React.createElement('span', {
-                                                        className: `px-2 py-1 rounded text-xs ${
-                                                            element.assetStatus === 'existing' 
-                                                                ? 'bg-green-500/30 text-green-100' 
-                                                                : 'bg-orange-500/30 text-orange-100'
-                                                        }`
-                                                    }, element.assetStatus === 'existing' ? 'Existing' : 'New')
-                                                ),
-                                                React.createElement('td', { className: "py-3 px-2" },
-                                                    React.createElement('div', { className: "flex gap-2" },
-                                                        React.createElement('button', {
-                                                            onClick: () => moveElement(element.id, 'up'),
-                                                            disabled: idx === 0,
-                                                            className: "text-purple-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
-                                                        }, "↑"),
-                                                        React.createElement('button', {
-                                                            onClick: () => moveElement(element.id, 'down'),
-                                                            disabled: idx === elements.length - 1,
-                                                            className: "text-purple-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
-                                                        }, "↓"),
-                                                        React.createElement('button', {
-                                                            onClick: () => deleteElement(element.id),
-                                                            className: "text-red-400 hover:text-red-300"
-                                                        }, React.createElement(Trash2))
-                                                    )
-                                                )
-                                            )
-                                        )
-                                    )
-                                )
-                            )
-                    )
-                )
+            return (
+                <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-6">
+                    <div className="max-w-7xl mx-auto">
+                        <div className="bg-white/10 backdrop-blur-lg rounded-2xl shadow-2xl p-8 mb-6">
+                            <h1 className="text-4xl font-bold text-white mb-2 flex items-center gap-3">
+                                <Clock />
+                                Livestream Rundown Scheduler
+                            </h1>
+                            <p className="text-purple-200">Plan and organize your looping livestream content</p>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                            <div className="lg:col-span-2 bg-white/10 backdrop-blur-lg rounded-xl p-6">
+                                <h2 className="text-2xl font-bold text-white mb-4">Add Element</h2>
+                                <div className="space-y-4">
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-purple-200 mb-2">
+                                                Start Time (HH:MM:SS) *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="00:30:00"
+                                                value={formData.startTime}
+                                                onChange={(e) => setFormData({...formData, startTime: e.target.value})}
+                                                className="w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-purple-200 mb-2">
+                                                Duration (HH:MM:SS) *
+                                            </label>
+                                            <input
+                                                type="text"
+                                                placeholder="00:05:30"
+                                                value={formData.duration}
+                                                onChange={(e) => setFormData({...formData, duration: e.target.value})}
+                                                className="w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            />
+                                        </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-purple-200 mb-2">
+                                                Element Type *
+                                            </label>
+                                            <select
+                                                value={formData.type}
+                                                onChange={(e) => setFormData({...formData, type: e.target.value})}
+                                                className="w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            >
+                                                <option value="">Select type...</option>
+                                                {elementTypes.map(type => (
+                                                    <option key={type} value={type} className="bg-slate-800">{type}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-purple-200 mb-2">
+                                                Asset Status *
+                                            </label>
+                                            <select
+                                                value={formData.assetStatus}
+                                                onChange={(e) => setFormData({...formData, assetStatus: e.target.value})}
+                                                className="w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                            >
+                                                <option value="existing" className="bg-slate-800">Existing in Catalog</option>
+                                                <option value="new" className="bg-slate-800">Create Bespoke</option>
+                                            </select>
+                                        </div>
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-purple-200 mb-2">
+                                            Element Title *
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g., Opening Montage"
+                                            value={formData.title}
+                                            onChange={(e) => setFormData({...formData, title: e.target.value})}
+                                            className="w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label className="block text-sm font-medium text-purple-200 mb-2">
+                                            Visual/Audio Start Cue
+                                        </label>
+                                        <input
+                                            type="text"
+                                            placeholder="e.g., Logo fade in, Music begins"
+                                            value={formData.cue}
+                                            onChange={(e) => setFormData({...formData, cue: e.target.value})}
+                                            className="w-full px-4 py-2 bg-white/10 border border-purple-300/30 rounded-lg text-white placeholder-purple-300/50 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                                        />
+                                    </div>
+
+                                    <button
+                                        onClick={addElement}
+                                        className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-6 rounded-lg font-semibold hover:from-purple-700 hover:to-pink-700 transition flex items-center justify-center gap-2"
+                                    >
+                                        <Plus />
+                                        Add Element
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6">
+                                <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-2">
+                                    <BarChart3 />
+                                    Summary Report
+                                </h2>
+                                <div className="space-y-4">
+                                    <div className="bg-white/5 rounded-lg p-4">
+                                        <div className="text-purple-300 text-sm mb-1">Total Elements</div>
+                                        <div className="text-3xl font-bold text-white">{stats.totalElements}</div>
+                                    </div>
+                                    
+                                    <div className="bg-white/5 rounded-lg p-4">
+                                        <div className="text-purple-300 text-sm mb-1">Total Duration</div>
+                                        <div className="text-2xl font-bold text-white">
+                                            {formatDuration(stats.totalDuration)}
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white/5 rounded-lg p-4">
+                                        <div className="text-purple-300 text-sm mb-2">Asset Status</div>
+                                        <div className="space-y-1">
+                                            <div className="flex justify-between text-white">
+                                                <span>Existing:</span>
+                                                <span className="font-semibold">{stats.assetBreakdown.existing}</span>
+                                            </div>
+                                            <div className="flex justify-between text-white">
+                                                <span>New:</span>
+                                                <span className="font-semibold">{stats.assetBreakdown.new}</span>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className="bg-white/5 rounded-lg p-4">
+                                        <div className="text-purple-300 text-sm mb-2">By Type</div>
+                                        <div className="space-y-1 max-h-48 overflow-y-auto">
+                                            {Object.entries(stats.typeBreakdown).map(([type, count]) => (
+                                                <div key={type} className="flex justify-between text-white text-sm">
+                                                    <span>{type}:</span>
+                                                    <span className="font-semibold">{count}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <button
+                                        onClick={exportRundown}
+                                        disabled={elements.length === 0}
+                                        className="w-full bg-green-600 text-white py-2 px-4 rounded-lg font-semibold hover:bg-green-700 transition flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                                    >
+                                        <Download />
+                                        Export CSV
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6">
+                            <h2 className="text-2xl font-bold text-white mb-4">Rundown Timeline</h2>
+                            {elements.length === 0 ? (
+                                <div className="text-center text-purple-300 py-12">
+                                    No elements added yet. Create your first element above to get started.
+                                </div>
+                            ) : (
+                                <div className="overflow-x-auto">
+                                    <table className="w-full">
+                                        <thead>
+                                            <tr className="border-b border-purple-300/30">
+                                                <th className="text-left text-purple-200 font-semibold py-3 px-2">Order</th>
+                                                <th className="text-left text-purple-200 font-semibold py-3 px-2">Start Time</th>
+                                                <th className="text-left text-purple-200 font-semibold py-3 px-2">Duration</th>
+                                                <th className="text-left text-purple-200 font-semibold py-3 px-2">Type</th>
+                                                <th className="text-left text-purple-200 font-semibold py-3 px-2">Title</th>
+                                                <th className="text-left text-purple-200 font-semibold py-3 px-2">Cue</th>
+                                                <th className="text-left text-purple-200 font-semibold py-3 px-2">Asset</th>
+                                                <th className="text-left text-purple-200 font-semibold py-3 px-2">Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {elements.map((element, idx) => (
+                                                <tr key={element.id} className="border-b border-purple-300/10 hover:bg-white/5">
+                                                    <td className="py-3 px-2 text-white font-semibold">{element.order}</td>
+                                                    <td className="py-3 px-2 text-white">{element.startTime}</td>
+                                                    <td className="py-3 px-2 text-white">{element.duration}</td>
+                                                    <td className="py-3 px-2">
+                                                        <span className="bg-purple-500/30 text-purple-100 px-2 py-1 rounded text-sm">
+                                                            {element.type}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-3 px-2 text-white font-medium">{element.title}</td>
+                                                    <td className="py-3 px-2 text-purple-200 text-sm">{element.cue || '—'}</td>
+                                                    <td className="py-3 px-2">
+                                                        <span className={element.assetStatus === 'existing' ? 'bg-green-500/30 text-green-100 px-2 py-1 rounded text-xs' : 'bg-orange-500/30 text-orange-100 px-2 py-1 rounded text-xs'}>
+                                                            {element.assetStatus === 'existing' ? 'Existing' : 'New'}
+                                                        </span>
+                                                    </td>
+                                                    <td className="py-3 px-2">
+                                                        <div className="flex gap-2">
+                                                            <button
+                                                                onClick={() => moveElement(element.id, 'up')}
+                                                                disabled={idx === 0}
+                                                                className="text-purple-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                                                            >
+                                                                ↑
+                                                            </button>
+                                                            <button
+                                                                onClick={() => moveElement(element.id, 'down')}
+                                                                disabled={idx === elements.length - 1}
+                                                                className="text-purple-300 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed"
+                                                            >
+                                                                ↓
+                                                            </button>
+                                                            <button
+                                                                onClick={() => deleteElement(element.id)}
+                                                                className="text-red-400 hover:text-red-300"
+                                                            >
+                                                                <Trash2 />
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                </div>
             );
         }
 
-        // Wait for DOM to be ready
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', function() {
-                ReactDOM.render(React.createElement(LivestreamRundown), document.getElementById('root'));
-            });
-        } else {
-            ReactDOM.render(React.createElement(LivestreamRundown), document.getElementById('root'));
-        }
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<LivestreamRundown />);
     </script>
 </body>
 </html>
